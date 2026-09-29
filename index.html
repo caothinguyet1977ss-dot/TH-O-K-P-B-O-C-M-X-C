@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAMESHOW: THÁO KÍP BÃO CẢM XÚC - LỚP 12</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .storm-pulse {
+            animation: stormPulse 2s infinite alternate;
+        }
+
+        @keyframes stormPulse {
+            0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+            100% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.7); }
+        }
+
+        .badge-glow {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between overflow-x-hidden selection:bg-purple-500 selection:text-white">
+
+    <!-- TOP BAR / HEADER -->
+    <header class="w-full max-w-5xl mx-auto p-4 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-red-500 flex items-center justify-center text-white font-bold shadow-lg">
+                <i class="fa-solid fa-bolt text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 bg-clip-text text-transparent">
+                    THÁO KÍP BÃO CẢM XÚC
+                </h1>
+                <p class="text-xs text-slate-400 font-medium">Chuyên đề Kỹ năng sống Lớp 12</p>
+            </div>
+        </div>
+
+        <!-- Audio controls & Volume -->
+        <div class="flex items-center space-x-3">
+            <button id="soundToggleBtn" onclick="toggleAudio()" class="glass-panel hover:bg-slate-700/60 text-slate-300 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition">
+                <i id="soundIcon" class="fa-solid fa-volume-high text-amber-400"></i>
+                <span id="soundText" class="hidden sm:inline">Âm thanh: Bật</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-4xl mx-auto px-4 py-2 flex-grow flex flex-col justify-center items-center relative">
+
+        <!-- Custom Toast Notification System -->
+        <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+        <!-- SCREEN 1: WELCOME / PLAYER START -->
+        <section id="screenWelcome" class="w-full glass-panel rounded-3xl p-6 sm:p-10 text-center shadow-2xl relative overflow-hidden transition-all duration-500">
+            <div class="absolute -top-24 -right-24 w-60 h-60 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 mb-4">
+                <i class="fa-solid fa-gamepad mr-1.5"></i> Thử Thách Real-time 5 Phút
+            </span>
+
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+                Bạn đã sẵn sàng <br class="hidden sm:block"/>
+                <span class="bg-gradient-to-r from-red-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">Dập Tắt Cơn Bão Cảm Xúc?</span>
+            </h2>
+
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
+                Áp lực học tập, tranh cãi nhóm, kỳ vọng điểm số và khủng hoảng mạng xã hội đang tạo ra những "kíp nổ cảm xúc" bộc phát. Hãy vận dụng trí tuệ cảm xúc (EQ) để tháo gỡ bão trong thời gian thực!
+            </p>
+
+            <!-- Registration Form -->
+            <div class="max-w-md mx-auto space-y-4 mb-8 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Họ và tên Học sinh:</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="playerNameInput" placeholder="Ví dụ: Nguyễn Văn A" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Lớp / Trường:</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-school absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="playerClassInput" placeholder="Ví dụ: 12A1" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition" />
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full max-w-md bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-orange-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-lg tracking-wide flex items-center justify-center gap-3 mx-auto">
+                <span>BẮT ĐẦU THÁO KÍP BÃO</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- SCREEN 2: GAMEPLAY SCREEN -->
+        <section id="screenGameplay" class="w-full glass-panel rounded-3xl p-5 sm:p-8 shadow-2xl hidden transition-all duration-500">
+            
+            <!-- Game HUD (Header Status) -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-700/60 mb-6">
+                <!-- Level Badge -->
+                <div class="flex items-center space-x-3">
+                    <span id="levelBadge" class="px-3 py-1.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i> LEVEL 1/3
+                    </span>
+                    <span id="levelTitle" class="text-sm font-semibold text-slate-200">Tâm Bão Cấp 1</span>
+                </div>
+
+                <!-- Score Counter & Timer -->
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block uppercase font-medium">Điểm số</span>
+                        <span id="scoreDisplay" class="text-xl font-extrabold text-amber-400">0</span>
+                    </div>
+
+                    <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden">
+                        <span id="timerDisplay" class="text-xl font-extrabold text-rose-400 leading-none">45</span>
+                        <span class="text-[9px] text-slate-400 font-semibold uppercase mt-0.5">Giây</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storm Threat Gauge Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                    <span><i class="fa-solid fa-wind mr-1 text-sky-400"></i> Mức độ Căng thẳng Tâm bão</span>
+                    <span id="stormStatusText" class="text-amber-400">Đang kiểm soát</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                    <div id="stormProgressBar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 rounded-full transition-all duration-300 w-full"></div>
+                </div>
+            </div>
+
+            <!-- SCENARIO CARD -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 mb-6 relative">
+                <div class="absolute -top-3 left-4 bg-slate-800 text-amber-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Tình huống thực tế
+                </div>
+                <p id="scenarioText" class="text-slate-100 font-medium text-sm sm:text-base leading-relaxed mt-1">
+                    Loading scenario...
+                </p>
+            </div>
+
+            <!-- INTERACTIVE QUESTION AREA (Dynamic per Level) -->
+            <div id="questionContainer" class="space-y-3">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Submit Action Footer -->
+            <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center">
+                <div class="text-xs text-slate-400 italic" id="hintText">
+                    <i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Chọn phản ứng chuẩn nhất để tháo kíp bão!
+                </div>
+                <button id="nextLevelBtn" onclick="submitAnswer()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                    <span>XÁC NHẬN</span>
+                    <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- SCREEN 3: RESULTS / VICTORY SCREEN -->
+        <section id="screenResults" class="w-full glass-panel rounded-3xl p-6 sm:p-10 text-center shadow-2xl hidden transition-all duration-500">
+            <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-500 mx-auto mb-4 flex items-center justify-center text-slate-950 text-4xl shadow-xl badge-glow">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                KẾT QUẢ THÁO KÍP BÃO
+            </span>
+
+            <h2 id="finalTitle" class="text-2xl sm:text-4xl font-extrabold text-white mt-3 mb-1">
+                BẬC THẦY BÌNH TĨNH
+            </h2>
+            <p id="playerSummary" class="text-slate-300 text-sm mb-6">Học sinh: <span class="font-bold text-white">--</span> - Lớp: <span class="font-bold text-white">--</span></p>
+
+            <!-- Score Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg mx-auto mb-8">
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Tổng điểm EQ</span>
+                    <span id="finalScore" class="text-2xl font-extrabold text-amber-400">0</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Độ chính xác</span>
+                    <span id="finalAccuracy" class="text-2xl font-extrabold text-emerald-400">100%</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl col-span-2 sm:col-span-1">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Cấp độ Đạt được</span>
+                    <span id="finalRankBadge" class="text-sm font-bold text-purple-300">Level MAX</span>
+                </div>
+            </div>
+
+            <!-- Key Educational Takeaway Message -->
+            <div class="bg-purple-950/40 border border-purple-500/30 rounded-2xl p-5 text-left mb-8 max-w-2xl mx-auto">
+                <h4 class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-quote-left text-purple-400"></i> THÔNG ĐIỆP BÀI HỌC TỪ GIÁO VIÊN
+                </h4>
+                <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
+                    "Dù trên không gian số hay ngoài đời thực, cảm xúc giống như thời tiết. Khi 'bão' đến, việc <strong>DỪNG LẠI 90 GIÂY</strong> trên bàn phím hay trước micro sẽ bảo vệ phẩm giá, mối quan hệ và sự an lạc của chính các em. Chúc các em luôn làm chủ cảm xúc để chinh phục kỳ thi THPT Quốc gia!"
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                <button onclick="copyResultToClipboard()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Sao chép kết quả gửi Thầy</span>
+                </button>
+                <button onclick="restartGame()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 px-6 rounded-xl text-sm transition border border-slate-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Thử lại từ đầu</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full max-w-5xl mx-auto p-4 text-center text-xs text-slate-500">
+        Gameshow Kiểm Soát Cảm Xúc Lớp 12 &copy; Thiết kế cho giờ dạy Online & Trực tiếp.
+    </footer>
+
+    <script>
+        /* GAME DATA & STATE MANAGEMENT */
+        let player = {
+            name: "",
+            className: "",
+            score: 0,
+            answers: []
+        };
+
+        let currentLevel = 0;
+        let timerInterval = null;
+        let timeLeft = 45;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // Level scenario configurations
+        const levelData = [
+            {
+                level: 1,
+                title: "Tâm Bão Cấp 1: Nóng Mặt Tại Chỗ",
+                timeLimit: 45,
+                scenario: "Trong giờ thảo luận nhóm online chuẩn bị bài thuyết trình, một bạn liên tục bật mic chê bài của bạn: 'Dở tệ và sến Cẩm Ly', rồi bấm điện thoại. Bạn cảm thấy tim đập nhanh, tức giận dâng trào.",
+                type: "single_choice",
+                hint: "Áp dụng Quy tắc 90 giây sinh học để hạ nhiệt cơ thể.",
+                options: [
+                    { id: "A", text: "A. Bật mic cãi lại ngay: 'Bạn không làm thì đừng ở đó mà phán xét!'", correct: false, score: 0 },
+                    { id: "B", text: "B. Tắt mic, hít sâu 3 nhịp bụng, uống ngụm nước rồi ôn tồn nhắn: 'Chúng ta cần tập trung hoàn thành bài. Ý kiến đóng góp cụ thể của bạn là gì?'", correct: true, score: 100 },
+                    { id: "C", text: "C. Thoát khỏi phòng Zoom nhóm, nhắn tin đăng bài phốt bạn đó lên Facebook.", correct: false, score: 0 }
+                ],
+                explanation: "Đáp án B chính xác! Bạn đã kích hoạt 90 giây tạm dừng sinh học, hạ nhịp tim và giữ được sự chuyên nghiệp."
+            },
+            {
+                level: 2,
+                title: "Tâm Bão Cấp 2: Áp Lực Điểm Số & Kỳ Vọng",
+                timeLimit: 60,
+                scenario: "Bạn vừa nhận kết quả thi thử ĐH không tốt. Vừa mở camera chào bố mẹ, chưa kịp giải thích thì bố mẹ thở dài: 'Học hành thế này thì làm sao vào nổi Nguyện vọng 1!'. Bạn uất ức và áp lực dâng trào.",
+                type: "tag_selection",
+                hint: "Áp dụng kỹ thuật 'Dán nhãn cảm xúc' và 'Thấu cảm nỗi sợ'. Chọn 2 từ khóa đúng.",
+                tagsEmotion: ["Tổn thương", "Giận dữ bộc phát", "Trả đũa", "Uất ức"],
+                tagsParentFear: ["Nỗi sợ tương lai của con", "Trách mắng cố tình", "Không yêu thương con"],
+                correctEmotion: "Tổn thương",
+                correctParentFear: "Nỗi sợ tương lai của con",
+                explanation: "Chính xác! Dán nhãn đúng cảm xúc 'Tổn thương' và nhận ra bố mẹ bộc phát vì 'Nỗi sợ tương lai của con' giúp bạn lấy lại sự thấu hiểu."
+            },
+            {
+                level: 3,
+                title: "Tâm Bão Cấp 3: Khủng Hoảng Mạng Xã Hội",
+                timeLimit: 75,
+                scenario: "Trước kỳ thi 2 tuần, bạn phát hiện tài khoản ảo đăng tin đồn thất thiệt về bạn trên Group trường với hàng trăm tương tác tiêu cực. Bạn hoảng loạn không thể học bài.",
+                type: "rain_reorder",
+                hint: "Sắp xếp 4 bước theo đúng tiến trình R.A.I.N (R -> A -> I -> N)",
+                rainSteps: [
+                    { id: 1, code: "R", title: "(1) Recognize (Nhận biết)", desc: "Dừng lướt Facebook, nhận ra: 'Mình đang hoảng loạn đỉnh điểm.'" },
+                    { id: 2, code: "A", title: "(2) Allow (Chấp nhận)", desc: "Chấp nhận mình đang rất uất ức, không cố đè nén hay tự trách." },
+                    { id: 3, code: "I", title: "(3) Investigate (Tìm hiểu)", desc: "Tự nhắc nhở: 'Tin đồn không phản ánh con người thật của mình. Thi ĐH mới là ưu tiên.'" },
+                    { id: 4, code: "N", title: "(4) Non-identification (Hành động/Tách biệt)", desc: "Nhờ thầy cô xử lý bài viết, tắt máy và quay lại bàn học." }
+                ],
+                correctOrder: [1, 2, 3, 4],
+                explanation: "Xuất sắc! Tiến trình R.A.I.N giúp bạn chuyển dịch từ hoảng loạn sang làm chủ hành động sáng suốt."
+            }
+        ];
+
+        /* SYNTHESIZE SOUND EFFECTS (Web Audio API) */
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(110, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'tick') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                    osc.start(now);
+                    osc.stop(now + 0.03);
+                }
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundText').innerText = soundEnabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt';
+            document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-high text-amber-400' : 'fa-solid fa-volume-xmark text-slate-500';
+            showToast(soundEnabled ? "Đã bật âm thanh" : "Đã tắt âm thanh", "info");
+        }
+
+        /* TOAST NOTIFICATION SYSTEM */
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            
+            let bgClass = "bg-slate-800 text-white border-slate-700";
+            if (type === "success") bgClass = "bg-emerald-900/90 text-emerald-200 border-emerald-600";
+            if (type === "error") bgClass = "bg-rose-900/90 text-rose-200 border-rose-600";
+            
+            toast.className = `p-3 px-4 rounded-xl border text-xs font-semibold shadow-xl transition-all duration-300 transform translate-x-5 opacity-0 flex items-center gap-2 ${bgClass}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove("translate-x-5", "opacity-0");
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-x-5");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /* GAME FLOW LOGIC */
+        function startGame() {
+            const name = document.getElementById("playerNameInput").value.trim();
+            const className = document.getElementById("playerClassInput").value.trim();
+
+            if (!name) {
+                showToast("Vui lòng nhập Họ và tên học sinh!", "error");
+                document.getElementById("playerNameInput").focus();
+                return;
+            }
+
+            player.name = name;
+            player.className = className || "Lớp 12";
+            player.score = 0;
+            player.answers = [];
+            currentLevel = 0;
+
+            playSound('click');
+
+            document.getElementById("screenWelcome").classList.add("hidden");
+            document.getElementById("screenGameplay").classList.remove("hidden");
+
+            loadLevel(0);
+        }
+
+        function loadLevel(levelIndex) {
+            currentLevel = levelIndex;
+            const data = levelData[levelIndex];
+
+            // Update UI Header
+            document.getElementById("levelBadge").innerHTML = `<i class="fa-solid fa-shield-halved"></i> LEVEL ${data.level}/3`;
+            document.getElementById("levelTitle").innerText = data.title;
+            document.getElementById("scenarioText").innerText = data.scenario;
+            document.getElementById("hintText").innerHTML = `<i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> ${data.hint}`;
+
+            // Reset Timer
+            timeLeft = data.timeLimit;
+            document.getElementById("timerDisplay").innerText = timeLeft;
+            startTimer();
+
+            // Render Questions based on Level Type
+            const qContainer = document.getElementById("questionContainer");
+            qContainer.innerHTML = "";
+
+            if (data.type === "single_choice") {
+                data.options.forEach(opt => {
+                    const btn = document.createElement("button");
+                    btn.className = "w-full text-left p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition flex items-start gap-3 option-btn text-xs sm:text-sm text-slate-200 font-medium";
+                    btn.onclick = () => selectSingleOption(btn, opt.id);
+                    btn.setAttribute("data-id", opt.id);
+                    btn.innerHTML = `
+                        <span class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-amber-400 shrink-0 text-xs mt-0.5">${opt.id}</span>
+                        <span>${opt.text.substring(3)}</span>
+                    `;
+                    qContainer.appendChild(btn);
+                });
+            } else if (data.type === "tag_selection") {
+                qContainer.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-amber-300 mb-2">1. Chọn Cảm Xúc thực sự của bạn:</label>
+                            <div class="grid grid-cols-2 gap-2" id="emotionTagBox">
+                                ${data.tagsEmotion.map(tag => `
+                                    <button onclick="selectTag('emotion', this, '${tag}')" class="p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-amber-400 text-xs font-semibold text-slate-200 transition text-center tag-btn-emotion">
+                                        ${tag}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-purple-300 mb-2">2. Chọn Nỗi Sợ / Nhu Cầu thực sự từ Bố Mẹ:</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="parentTagBox">
+                                ${data.tagsParentFear.map(tag => `
+                                    <button onclick="selectTag('parent', this, '${tag}')" class="p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-purple-400 text-xs font-semibold text-slate-200 transition text-center tag-btn-parent">
+                                        ${tag}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (data.type === "rain_reorder") {
+                // Interactive Shuffleable R.A.I.N steps
+                let shuffled = [...data.rainSteps].sort(() => Math.random() - 0.5);
+                qContainer.innerHTML = `
+                    <p class="text-xs text-slate-400 mb-2">Nhấn nút mũi tên <i class="fa-solid fa-arrow-down-long text-amber-400"></i> để xếp lại theo thứ tự R ➔ A ➔ I ➔ N:</p>
+                    <div class="space-y-2" id="rainOrderList">
+                        ${shuffled.map((step, idx) => `
+                            <div class="rain-item p-3 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between gap-3 text-xs" data-id="${step.id}">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 font-bold flex items-center justify-center shrink-0 step-num">${idx + 1}</span>
+                                    <div>
+                                        <div class="font-bold text-amber-300">${step.title}</div>
+                                        <div class="text-slate-300 text-[11px]">${step.desc}</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <button onclick="moveRainItem(this, -1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-up"></i></button>
+                                    <button onclick="moveRainItem(this, 1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-down"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        /* TIMER SYSTEM */
+        function startTimer() {
+            clearInterval(timerInterval);
+            const totalTime = levelData[currentLevel].timeLimit;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timerDisplay").innerText = timeLeft;
+
+                // Update Storm Gauge Bar
+                const percentage = (timeLeft / totalTime) * 100;
+                document.getElementById("stormProgressBar").style.width = `${percentage}%`;
+
+                if (timeLeft <= 10) {
+                    playSound('tick');
+                    document.getElementById("timerDisplay").classList.add("text-rose-500", "animate-pulse");
+                } else {
+                    document.getElementById("timerDisplay").classList.remove("text-rose-500", "animate-pulse");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showToast("Hết thời gian! Tự động nộp bài.", "error");
+                    submitAnswer(true); // auto submit on timeout
+                }
+            }, 1000);
+        }
+
+        /* LEVEL 1: SINGLE OPTION SELECTION */
+        let selectedSingleId = null;
+        function selectSingleOption(btnElement, optId) {
+            playSound('click');
+            document.querySelectorAll(".option-btn").forEach(b => {
+                b.classList.remove("border-amber-400", "bg-amber-500/10");
+                b.classList.add("border-slate-700", "bg-slate-800/80");
+            });
+            btnElement.classList.remove("border-slate-700", "bg-slate-800/80");
+            btnElement.classList.add("border-amber-400", "bg-amber-500/10");
+            selectedSingleId = optId;
+        }
+
+        /* LEVEL 2: TAG SELECTION */
+        let selectedEmotionTag = null;
+        let selectedParentTag = null;
+        function selectTag(category, btn, tagValue) {
+            playSound('click');
+            if (category === 'emotion') {
+                document.querySelectorAll(".tag-btn-emotion").forEach(b => b.classList.remove("border-amber-400", "bg-amber-500/20", "text-amber-300"));
+                btn.classList.add("border-amber-400", "bg-amber-500/20", "text-amber-300");
+                selectedEmotionTag = tagValue;
+            } else {
+                document.querySelectorAll(".tag-btn-parent").forEach(b => b.classList.remove("border-purple-400", "bg-purple-500/20", "text-purple-300"));
+                btn.classList.add("border-purple-400", "bg-purple-500/20", "text-purple-300");
+                selectedParentTag = tagValue;
+            }
+        }
+
+        /* LEVEL 3: REORDER ITEMS */
+        function moveRainItem(btn, direction) {
+            playSound('click');
+            const item = btn.closest(".rain-item");
+            const list = document.getElementById("rainOrderList");
+            if (direction === -1 && item.previousElementSibling) {
+                list.insertBefore(item, item.previousElementSibling);
+            } else if (direction === 1 && item.nextElementSibling) {
+                list.insertBefore(item.nextElementSibling, item);
+            }
+            // Update step numbers
+            document.querySelectorAll(".rain-item").forEach((el, idx) => {
+                el.querySelector(".step-num").innerText = idx + 1;
+            });
+        }
+
+        /* SUBMIT ANSWER & CALCULATION */
+        function submitAnswer(isTimeout = false) {
+            clearInterval(timerInterval);
+            const data = levelData[currentLevel];
+            let isCorrect = false;
+            let levelScore = 0;
+
+            if (data.type === "single_choice") {
+                if (!selectedSingleId && !isTimeout) {
+                    showToast("Vui lòng chọn 1 phương án!", "error");
+                    startTimer();
+                    return;
+                }
+                if (selectedSingleId === "B") {
+                    isCorrect = true;
+                }
+            } else if (data.type === "tag_selection") {
+                if ((!selectedEmotionTag || !selectedParentTag) && !isTimeout) {
+                    showToast("Vui lòng chọn đủ 2 từ khóa!", "error");
+                    startTimer();
+                    return;
+                }
+                if (selectedEmotionTag === data.correctEmotion && selectedParentTag === data.correctParentFear) {
+                    isCorrect = true;
+                }
+            } else if (data.type === "rain_reorder") {
+                const currentOrder = Array.from(document.querySelectorAll(".rain-item")).map(el => parseInt(el.getAttribute("data-id")));
+                if (JSON.stringify(currentOrder) === JSON.stringify(data.correctOrder)) {
+                    isCorrect = true;
+                }
+            }
+
+            if (isCorrect) {
+                playSound('correct');
+                levelScore = 100 + timeLeft * 2; // Speed bonus
+                player.score += levelScore;
+                document.getElementById("scoreDisplay").innerText = player.score;
+                showToast(`Chính xác! +${levelScore} điểm`, "success");
+            } else {
+                playSound('wrong');
+                showToast("Chưa chính xác! Nhưng bạn đã học thêm kinh nghiệm.", "error");
+            }
+
+            player.answers.push({
+                level: data.level,
+                isCorrect: isCorrect,
+                score: levelScore,
+                explanation: data.explanation
+            });
+
+            // Reset Level specific selections
+            selectedSingleId = null;
+            selectedEmotionTag = null;
+            selectedParentTag = null;
+
+            // Move to Next Level or Finish
+            if (currentLevel < levelData.length - 1) {
+                setTimeout(() => {
+                    loadLevel(currentLevel + 1);
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    finishGame();
+                }, 1000);
+            }
+        }
+
+        /* FINISH GAME & RESULTS */
+        function finishGame() {
+            document.getElementById("screenGameplay").classList.add("hidden");
+            document.getElementById("screenResults").classList.remove("hidden");
+
+            // Calculate Metrics
+            const correctCount = player.answers.filter(a => a.isCorrect).length;
+            const accuracy = Math.round((correctCount / levelData.length) * 100);
+
+            document.getElementById("finalScore").innerText = player.score;
+            document.getElementById("finalAccuracy").innerText = `${accuracy}%`;
+            document.getElementById("playerSummary").innerHTML = `Học sinh: <span class="font-bold text-amber-300">${player.name}</span> - Lớp: <span class="font-bold text-amber-300">${player.className}</span>`;
+
+            // Titles assignment
+            let title = "DŨNG SĨ TẬP SỰ";
+            let rankBadge = "Cấp Độ 1";
+
+            if (player.score >= 350) {
+                title = "BẬC THẦY BÌNH TĨNH (LEVEL MAX)";
+                rankBadge = "Xếp Hạng SSS";
+            } else if (player.score >= 200) {
+                title = "CHUYÊN GIA DẬP BÃO (LEVEL A)";
+                rankBadge = "Xếp Hạng A";
+            }
+
+            document.getElementById("finalTitle").innerText = title;
+            document.getElementById("finalRankBadge").innerText = rankBadge;
+
+            // Trigger Confetti
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        /* COPY RESULTS TO CLIPBOARD */
+        function copyResultToClipboard() {
+            const text = `🏆 KẾT QUẢ GAMESHOW [THÁO KÍP BÃO CẢM XÚC]\n• Học sinh: ${player.name}\n• Lớp: ${player.className}\n• Điểm EQ: ${player.score} điểm\n• Danh hiệu: ${document.getElementById("finalTitle").innerText}\n• Hoàn thành chuyên đề Kỹ năng kiểm soát cảm xúc Lớp 12!`;
+
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Đã sao chép kết quả! Bạn có thể dán (Paste) gửi cho Thầy Cô.", "success");
+        }
+
+        function restartGame() {
+            playSound('click');
+            document.getElementById("screenResults").classList.add("hidden");
+            document.getElementById("screenWelcome").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
